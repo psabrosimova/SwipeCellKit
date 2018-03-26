@@ -15,6 +15,11 @@ class SwipeActionButton: UIButton {
     var maximumImageHeight: CGFloat = 0
     var verticalAlignment: SwipeVerticalAlignment = .centerFirstBaseline
     
+    var customTitleLabel: UILabel!
+    var customImageView: UIImageView!
+    
+    var action: SwipeAction!
+    
     var currentSpacing: CGFloat {
         return (currentTitle?.isEmpty == false && maximumImageHeight > 0) ? spacing : 0
     }
@@ -29,6 +34,8 @@ class SwipeActionButton: UIButton {
     
     convenience init(action: SwipeAction) {
         self.init(frame: .zero)
+        
+        self.action = action
 
         contentHorizontalAlignment = .center
         
@@ -36,18 +43,30 @@ class SwipeActionButton: UIButton {
         let highlightedTextColor = action.highlightedTextColor ?? tintColor
         highlightedBackgroundColor = action.highlightedBackgroundColor ?? UIColor.black.withAlphaComponent(0.1)
 
-        titleLabel?.font = action.font ?? UIFont.systemFont(ofSize: 15, weight: UIFont.Weight.medium)
-        titleLabel?.textAlignment = .center
-        titleLabel?.lineBreakMode = .byWordWrapping
-        titleLabel?.numberOfLines = 0
+        if let label = action.customLabel {
+            self.customTitleLabel = label
+        }
+        else {
+            titleLabel?.font = action.font ?? UIFont.systemFont(ofSize: 15, weight: UIFont.Weight.medium)
+            titleLabel?.textAlignment = .center
+            titleLabel?.lineBreakMode = .byWordWrapping
+            titleLabel?.numberOfLines = 0
+            
+            setTitle(action.title, for: .normal)
+            setTitleColor(tintColor, for: .normal)
+            setTitleColor(highlightedTextColor, for: .highlighted)
+            setImage(action.image, for: .normal)
+            setImage(action.highlightedImage ?? action.image, for: .highlighted)
+        }
         
         accessibilityLabel = action.accessibilityLabel
         
-        setTitle(action.title, for: .normal)
-        setTitleColor(tintColor, for: .normal)
-        setTitleColor(highlightedTextColor, for: .highlighted)
-        setImage(action.image, for: .normal)
-        setImage(action.highlightedImage ?? action.image, for: .highlighted)
+        if let imageView = action.customeImageView {
+            self.customImageView = imageView
+        }
+        
+        self.addSubview(customTitleLabel)
+        self.addSubview(customImageView)
     }
     
     override var isHighlighted: Bool {
